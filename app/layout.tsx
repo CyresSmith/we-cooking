@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 
+import { clsx } from 'clsx';
+
 import './globals.css';
+
+import { exo } from '@fonts';
 
 export const metadata: Metadata = {
     description: 'Recipes for cooking',
@@ -13,8 +17,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={`antialiased`}>{children}</body>
+        <html lang="uk">
+            <body className={clsx(exo.className, 'antialiased')}>{children}</body>
         </html>
     );
 }
