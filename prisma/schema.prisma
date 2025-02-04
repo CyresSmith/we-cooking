@@ -1,0 +1,104 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String   @id @default(cuid())
+    name      String?
+    email     String?  @unique
+    image     String?  @default("")
+    posts     Recipe[]
+    createdAt DateTime @default(now()) @map(name: "created_at")
+    updatedAt DateTime @updatedAt @map(name: "updated_at")
+    role      Role     @default(USER)
+
+    @@map(name: "users")
+}
+
+model DishType {
+    id        String   @id @default(cuid())
+    title     String
+    recipes   Recipe[]
+    createdAt DateTime @default(now()) @map(name: "created_at")
+    updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+    @@map(name: "dish_types")
+}
+
+model Recipe {
+    id           String                 @id @default(cuid())
+    title        String
+    content      String                 @default("")
+    status       Status                 @default(DRAFT)
+    author       User?                  @relation(fields: [authorId], references: [id])
+    authorId     String?
+    type         DishType?              @relation(fields: [typeId], references: [id])
+    typeId       String?
+    time         Int?
+    tags         TagsOnRecipes[]
+    ingredients  IngredientsInRecipes[]
+    createdAt    DateTime               @default(now()) @map(name: "created_at")
+    updatedAt    DateTime               @updatedAt @map(name: "updated_at")
+    ingredient   Ingredient?            @relation(fields: [ingredientId], references: [id])
+    ingredientId String?                @unique
+
+    @@map(name: "recipes")
+}
+
+model Ingredient {
+    id        String                 @id @default(cuid())
+    title     String
+    recipes   IngredientsInRecipes[]
+    recipe    Recipe?                @relation
+    recipeId  String?
+    createdAt DateTime               @default(now()) @map(name: "created_at")
+    updatedAt DateTime               @updatedAt @map(name: "updated_at")
+
+    @@map(name: "ingredients")
+}
+
+model Tag {
+    id        String          @id @default(cuid())
+    title     String
+    recipes   TagsOnRecipes[]
+    createdAt DateTime        @default(now()) @map(name: "created_at")
+    updatedAt DateTime        @updatedAt @map(name: "updated_at")
+
+    @@map(name: "tags")
+}
+
+model TagsOnRecipes {
+    recipeId   String
+    tagId      String
+    recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+    assignedAt DateTime @default(now()) @map(name: "assigned_at")
+
+    @@id([recipeId, tagId])
+}
+
+model IngredientsInRecipes {
+    recipeId     String
+    ingredientId String
+    recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+    assignedAt   DateTime   @default(now()) @map(name: "assigned_at")
+
+    @@id([recipeId, ingredientId])
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+enum Status {
+    PUBLISHED
+    DRAFT
+    MODERATION
+}
