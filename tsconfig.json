@@ -80,7 +80,10 @@
       ],
       "@mutations": [
         "./mutations"
-      ]
+      ],
+      "@auth": [
+        "./auth.ts"
+      ],
     }
   },
   "include": [

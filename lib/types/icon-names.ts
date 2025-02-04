@@ -1,1 +1,1 @@
-export type IconName = 'logo';
+export type IconName = 'google' | 'logo';

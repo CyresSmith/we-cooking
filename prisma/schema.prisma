@@ -8,16 +8,39 @@ datasource db {
 }
 
 model User {
-    id        String   @id @default(cuid())
-    name      String?
-    email     String?  @unique
-    image     String?  @default("")
-    posts     Recipe[]
-    createdAt DateTime @default(now()) @map(name: "created_at")
-    updatedAt DateTime @updatedAt @map(name: "updated_at")
-    role      Role     @default(USER)
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    image         String?   @default("")
+    posts         Recipe[]
+    createdAt     DateTime  @default(now()) @map(name: "created_at")
+    updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+    role          Role      @default(USER)
+    emailVerified DateTime?
+    Account       Account[]
 
     @@map(name: "users")
+}
+
+model Account {
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([provider, providerAccountId])
 }
 
 model DishType {
@@ -35,6 +58,7 @@ model Recipe {
     title        String
     content      String                 @default("")
     status       Status                 @default(DRAFT)
+    image        String                 @default("")
     author       User?                  @relation(fields: [authorId], references: [id])
     authorId     String?
     type         DishType?              @relation(fields: [typeId], references: [id])
@@ -42,10 +66,10 @@ model Recipe {
     time         Int?
     tags         TagsOnRecipes[]
     ingredients  IngredientsInRecipes[]
-    createdAt    DateTime               @default(now()) @map(name: "created_at")
-    updatedAt    DateTime               @updatedAt @map(name: "updated_at")
     ingredient   Ingredient?            @relation(fields: [ingredientId], references: [id])
     ingredientId String?                @unique
+    createdAt    DateTime               @default(now()) @map(name: "created_at")
+    updatedAt    DateTime               @updatedAt @map(name: "updated_at")
 
     @@map(name: "recipes")
 }
@@ -56,6 +80,7 @@ model Ingredient {
     recipes   IngredientsInRecipes[]
     recipe    Recipe?                @relation
     recipeId  String?
+    image     String                 @default("")
     createdAt DateTime               @default(now()) @map(name: "created_at")
     updatedAt DateTime               @updatedAt @map(name: "updated_at")
 
